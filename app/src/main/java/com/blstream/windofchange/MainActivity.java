@@ -8,9 +8,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,15 +24,30 @@ public class MainActivity extends AppCompatActivity implements IRecyclerViewPosi
     private BroadcastReceiver mReceiver;
     private ArrayList<RSSInfo> list;
     private Intent mServiceIntent;
+    private Handler handler = new Handler();
+    public Runnable timedTask = new Runnable() {
 
+        @Override
+        public void run() {
+            // type code here which will loop with the given delay
+            if (RSSAdapter.areAllThreadsFinished(RSSAdapter.currentThreadsInAsyncTask)) {
+                Log.d("FROM HANDLER: ", "ALL THREADS FINISHED");
+                //handler.removeCallbacks(this);
+                StaticVariable.isThreadsFromAsyncTaskAlive = false;
+
+            }
+            //delay for the runnable
+            Log.d("FROM HANDLER: ", "RUNNING");
+            handler.postDelayed(timedTask, 500);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if(savedInstanceState != null){
-            return;
-        }
+        handler.post(timedTask);
+
 
 
     }
@@ -42,14 +59,11 @@ public class MainActivity extends AppCompatActivity implements IRecyclerViewPosi
                 mServiceIntent = new Intent(this, RSSPullService.class);
                 startService(mServiceIntent);
                 return true;
-
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
-
     }
 
     @Override
@@ -71,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements IRecyclerViewPosi
                 "android.intent.action.MAIN");
 
         mReceiver = new BroadcastReceiver() {
-
             @Override
             public void onReceive(Context context, Intent intent) {
                 list = intent

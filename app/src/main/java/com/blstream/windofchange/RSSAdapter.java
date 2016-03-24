@@ -3,17 +3,19 @@ package com.blstream.windofchange;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,10 +23,21 @@ import java.util.List;
  */
 public class RSSAdapter extends RecyclerView.Adapter<RSSAdapter.RSSViewHolder> {
     protected IRecyclerViewPositionHelper listener;
+    static List<Thread> currentThreadsInAsyncTask = new ArrayList<>();
+
+
     private List<RSSInfo> rssList;
 
     public RSSAdapter(List<RSSInfo> rssList) {
         this.rssList = rssList;
+    }
+
+    public static boolean areAllThreadsFinished(List<Thread> threadsList) {
+        for (Thread thread : threadsList) {
+            if (thread.isAlive())
+                return false;
+        }
+        return true;
     }
 
     public void setListener(IRecyclerViewPositionHelper listener) {
@@ -36,6 +49,7 @@ public class RSSAdapter extends RecyclerView.Adapter<RSSAdapter.RSSViewHolder> {
         View itemView = LayoutInflater.
                 from(parent.getContext()).
                 inflate(R.layout.single_item_layout, parent, false);
+
         return new RSSViewHolder(itemView, listener);
     }
 
@@ -54,7 +68,7 @@ public class RSSAdapter extends RecyclerView.Adapter<RSSAdapter.RSSViewHolder> {
         return rssList.size();
     }
 
-    public class RSSViewHolder extends RecyclerView.ViewHolder implements AdapterView.OnItemClickListener {
+    public class RSSViewHolder extends RecyclerView.ViewHolder {
         protected ImageView mImage;
         protected TextView mTitle;
         protected TextView mDescription;
@@ -74,11 +88,6 @@ public class RSSAdapter extends RecyclerView.Adapter<RSSAdapter.RSSViewHolder> {
                     }
                 }
             });
-
-        }
-
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         }
     }
 
@@ -95,6 +104,7 @@ public class RSSAdapter extends RecyclerView.Adapter<RSSAdapter.RSSViewHolder> {
 
         @Override
         protected Bitmap doInBackground(String... params) {
+
             try {
                 URL urlConnection = new URL(url);
                 HttpURLConnection connection = (HttpURLConnection) urlConnection
@@ -102,6 +112,9 @@ public class RSSAdapter extends RecyclerView.Adapter<RSSAdapter.RSSViewHolder> {
                 connection.setDoInput(true);
                 connection.connect();
                 InputStream input = connection.getInputStream();
+                Log.d("Current Thread Asy Id: ", String.valueOf(Thread.currentThread().getId()));
+                currentThreadsInAsyncTask.add(Thread.currentThread());
+
                 return BitmapFactory.decodeStream(input);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -113,7 +126,9 @@ public class RSSAdapter extends RecyclerView.Adapter<RSSAdapter.RSSViewHolder> {
         protected void onPostExecute(Bitmap result) {
             super.onPostExecute(result);
             image.setImageBitmap(result);
-        }
 
+        }
     }
+
+
 }

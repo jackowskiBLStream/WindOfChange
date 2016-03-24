@@ -37,7 +37,6 @@ public class RSSPullService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.d(TAG, "Service Started!");
-
         Intent localIntent;
         try {
             List<RSSInfo> checkList = downloadData(Constants.URL);
@@ -48,22 +47,12 @@ public class RSSPullService extends IntentService {
                                 (ArrayList<? extends Parcelable>) checkList);
                 sendBroadcast(localIntent);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
         // Broadcasts the Intent to receivers in this app.
-
-
         Log.d("RSSPullService: ", "onHandleIntent");
-      /*  try {
-            Log.d("Downloaded data: ", downloadData(Constants.URL));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-
     }
-
     private List<RSSInfo> downloadData(String requestUrl) throws IOException {
         InputStream inputStream;
         HttpURLConnection urlConnection;
@@ -84,7 +73,6 @@ public class RSSPullService extends IntentService {
             return null;
         }
     }
-
     private List<RSSInfo> parseResult(InputStream is) {
         boolean isItemStartTag = false;
         try {
