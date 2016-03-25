@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,7 +23,7 @@ import java.util.List;
 /**
  *
  */
-public class RSSAdapter extends RecyclerView.Adapter<RSSAdapter.RSSViewHolder> {
+public class RSSAdapter extends RecyclerView.Adapter<RSSAdapter.RSSViewHolder> implements Parcelable {
     protected IRecyclerViewPositionHelper listener;
     static List<Thread> currentThreadsInAsyncTask = new ArrayList<>();
 
@@ -31,6 +33,22 @@ public class RSSAdapter extends RecyclerView.Adapter<RSSAdapter.RSSViewHolder> {
     public RSSAdapter(List<RSSInfo> rssList) {
         this.rssList = rssList;
     }
+
+    protected RSSAdapter(Parcel in) {
+        rssList = in.createTypedArrayList(RSSInfo.CREATOR);
+    }
+
+    public static final Creator<RSSAdapter> CREATOR = new Creator<RSSAdapter>() {
+        @Override
+        public RSSAdapter createFromParcel(Parcel in) {
+            return new RSSAdapter(in);
+        }
+
+        @Override
+        public RSSAdapter[] newArray(int size) {
+            return new RSSAdapter[size];
+        }
+    };
 
     public static boolean areAllThreadsFinished(List<Thread> threadsList) {
         for (Thread thread : threadsList) {
@@ -66,6 +84,16 @@ public class RSSAdapter extends RecyclerView.Adapter<RSSAdapter.RSSViewHolder> {
     @Override
     public int getItemCount() {
         return rssList.size();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeTypedList(rssList);
     }
 
     public class RSSViewHolder extends RecyclerView.ViewHolder {
@@ -126,7 +154,7 @@ public class RSSAdapter extends RecyclerView.Adapter<RSSAdapter.RSSViewHolder> {
         protected void onPostExecute(Bitmap result) {
             super.onPostExecute(result);
             image.setImageBitmap(result);
-
+            cancel(true);
         }
     }
 

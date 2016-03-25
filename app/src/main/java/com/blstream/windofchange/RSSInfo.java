@@ -32,6 +32,9 @@ public class RSSInfo implements Parcelable {
         link = in.readString();
     }
 
+    public RSSInfo() {
+    }
+
     public String getLink() {
         return link;
     }
