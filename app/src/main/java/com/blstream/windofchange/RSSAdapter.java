@@ -3,7 +3,6 @@ package com.blstream.windofchange;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
@@ -112,7 +111,7 @@ public class RSSAdapter extends RecyclerView.Adapter<RSSAdapter.RSSViewHolder> i
                 @Override
                 public void onClick(View v) {
                     if (listener != null) {
-                        listener.onListen(getAdapterPosition());
+                        listener.onListPositionListener(getAdapterPosition());
                     }
                 }
             });

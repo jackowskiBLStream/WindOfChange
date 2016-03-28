@@ -26,6 +26,8 @@ public class RSSPullService extends IntentService {
     private RSSInfo rssInfo;
     private String text;
     private List<RSSInfo> rssInfoList = new ArrayList<>();
+    private String channelTitle;
+    private String channelPubDate;
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -45,6 +47,8 @@ public class RSSPullService extends IntentService {
                         // Puts the status into the Intent
                         .putParcelableArrayListExtra(Constants.EXTENDED_DATA_STATUS,
                                 (ArrayList<? extends Parcelable>) checkList);
+                localIntent.putExtra(Constants.CHANNEL_TITLE, channelTitle);
+                localIntent.putExtra(Constants.CHANNEL_PUB_DATE, channelPubDate);
                 sendBroadcast(localIntent);
             }
         } catch (IOException e) {
@@ -89,13 +93,11 @@ public class RSSPullService extends IntentService {
         factory = XmlPullParserFactory.newInstance();
         factory.setNamespaceAware(true);
         parser = factory.newPullParser();
-
         parser.setInput(is, null);
 
         int eventType = parser.getEventType();
         while (eventType != XmlPullParser.END_DOCUMENT) {
             String tagname = parser.getName();
-
             isItemStartTag = parseEachTag(parser, isItemStartTag, eventType, tagname);
             eventType = parser.next();
         }
@@ -110,11 +112,9 @@ public class RSSPullService extends IntentService {
             case XmlPullParser.TEXT:
                 text = parser.getText();
                 break;
-
             case XmlPullParser.END_TAG:
                 endTagParser(parser, isItemStartTag, tagname);
                 break;
-
             default:
                 break;
         }
@@ -144,6 +144,12 @@ public class RSSPullService extends IntentService {
             } else if (tagname.equalsIgnoreCase("link")) {
                 rssInfo.setLink(text);
             }
+        } else{
+             if (tagname.equalsIgnoreCase("title")) {
+                 channelTitle = text;
+             }else if(tagname.equalsIgnoreCase("lastBuildDate")){
+                 channelPubDate = text;
+             }
         }
     }
 

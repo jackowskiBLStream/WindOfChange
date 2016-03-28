@@ -9,4 +9,6 @@ public final class Constants {
     // Defines the key for the status "extra" in an Intent
     public static final String EXTENDED_DATA_STATUS = "STATUS";
     public static final String URL = "http://www.kozaczek.pl/rss/plotki.xml";
+    public static final String CHANNEL_TITLE = "CHANNEL_TITLE";
+    public static final String CHANNEL_PUB_DATE = "CHANNEL_PUB_DATE";
 }
